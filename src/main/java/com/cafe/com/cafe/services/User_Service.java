@@ -8,6 +8,11 @@ import com.cafe.com.cafe.constants.Cafe_Constants;
 import com.cafe.com.cafe.service_Interfaces.User_Service_Interface;
 import com.cafe.com.cafe.dao.User_Dao;
 import com.cafe.com.cafe.utils.CafeUtils;
+
+import com.cafe.com.cafe.utils.EmailUtils;
+import com.cafe.com.cafe.wrapper.User_Wrapper;
+
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +27,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class User_Service implements User_Service_Interface {
-     // this class Autowired in video-1
+    // this class Autowired in video-1
     @Autowired
     User_Dao userDao;
 
@@ -34,6 +39,9 @@ public class User_Service implements User_Service_Interface {
 
     @Autowired
     JwtUtil jwtUtil;
+
+    @Autowired
+    EmailUtils emailUtil;
 
     @Autowired
     JwtFilter jwtFilter;
@@ -90,17 +98,17 @@ public class User_Service implements User_Service_Interface {
         log.info("Inside login");
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
-            );
+                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password")));
 
             if (auth.isAuthenticated()) {
                 if (customerUsersDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")) {
                     return new ResponseEntity<String>("{\"token\":\"" +
                             jwtUtil.generateToken(customerUsersDetailsService.getUserDetail().getEmail(),
-                                    customerUsersDetailsService.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
-                }
-                else {
-                    return new ResponseEntity<String>("{\"message\":\""+"Please wait for admin approval."+"\"}", HttpStatus.BAD_REQUEST);
+                                    customerUsersDetailsService.getUserDetail().getRole())
+                            + "\"}", HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<String>("{\"message\":\"" + "Please wait for admin approval." + "\"}",
+                            HttpStatus.BAD_REQUEST);
                 }
             }
         } catch (Exception ex) {
@@ -109,5 +117,55 @@ public class User_Service implements User_Service_Interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST);
     }
     // video-2 start
+
+    @Override
+    public ResponseEntity<List<User_Wrapper>> getAllUser() {
+        try {
+            if (jwtFilter.isAdmin()) {
+                return new ResponseEntity<>(userDao.getAllUser(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> update(Map<String, String> requestMap) {
+        try {
+            if (jwtFilter.isAdmin()) {
+                Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
+                if (!optional.isEmpty()) {
+                    userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
+                    sendMailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userDao.getAllAdmin());
+                    System.out.println("email function called");
+                    return CafeUtils.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
+                } else {
+                    return CafeUtils.getResponseEntity("User id Doesn't not exist", HttpStatus.OK);
+                }
+            } else {
+                return CafeUtils.getResponseEntity(Cafe_Constants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
+        allAdmin.remove(jwtFilter.getCurrentUser());
+        if (status != null && status.equalsIgnoreCase("true")) {
+            emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved",
+                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - " + user + " \nis approved by \nADMIN: - " + jwtFilter.getCurrentUser() + "\nVaghani Bhautik\n", allAdmin);
+                    System.out.println("send apruval");
+        } else {
+            emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved",
+                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - " + user + " \nis disable by \nADMIN: - " + jwtFilter.getCurrentUser() + "\nVaghani Bhautik\n", allAdmin);
+                    System.out.println("send apruval");
+        }
+    }
+
 
 }
