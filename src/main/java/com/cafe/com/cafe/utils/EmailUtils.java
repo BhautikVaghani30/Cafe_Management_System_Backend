@@ -5,7 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
 // this class creatred in video-4
 @Service
 public class EmailUtils {
@@ -27,6 +32,7 @@ public class EmailUtils {
         }
         emailSender.send(message);
     }
+
     // v-4
     private String[] getCcArray(List<String> ccList) {
         String[] cc = new String[ccList.size()];
@@ -35,5 +41,19 @@ public class EmailUtils {
             cc[i] = ccList.get(i);
         }
         return cc;
+    }
+
+    // sends email to user when a user clicks forgot password button video-5
+    public void forgotMail(String to, String subject, String password) throws MessagingException {
+        MimeMessage message = emailSender.createMimeMessage(); // mime messages
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setFrom("codewithbhautik01@gmail.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        String htmlMsg = "<p><b>Your Login details for Cafe Management System</b><br><b>Email: </b> " + to
+                + " <br><b>Password: </b> " + password
+                + "<br><a href=\"http://localhost:4200/\">Click here to login</a></p>";
+        message.setContent(htmlMsg, "text/html");
+        emailSender.send(message);
     }
 }

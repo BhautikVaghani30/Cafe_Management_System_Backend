@@ -16,7 +16,15 @@ public interface User_Service_Interface {
     ResponseEntity<List<User_Wrapper>> getAllUser();
 
     // user login api created in video-4
-    ResponseEntity<String> update(Map<String,String> requestMap);
+    ResponseEntity<String> update(Map<String, String> requestMap);
 
-    
+    // user tokencheck v-5
+    ResponseEntity<String> checkToken();
+
+    // change password api v-5
+    ResponseEntity<String> changePassword(Map<String, String> requestMap);
+
+    // forgot password api v-5
+    ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
+
 }

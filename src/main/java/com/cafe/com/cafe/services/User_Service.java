@@ -11,7 +11,7 @@ import com.cafe.com.cafe.utils.CafeUtils;
 
 import com.cafe.com.cafe.utils.EmailUtils;
 import com.cafe.com.cafe.wrapper.User_Wrapper;
-
+import com.google.common.base.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +132,7 @@ public class User_Service implements User_Service_Interface {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    // update user password vidio-4
     @Override
     public ResponseEntity<String> update(Map<String, String> requestMap) {
         try {
@@ -154,18 +155,69 @@ public class User_Service implements User_Service_Interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    // send email to all admin user video-4
     private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
         allAdmin.remove(jwtFilter.getCurrentUser());
         if (status != null && status.equalsIgnoreCase("true")) {
             emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved",
-                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - " + user + " \nis approved by \nADMIN: - " + jwtFilter.getCurrentUser() + "\nVaghani Bhautik\n", allAdmin);
-                    System.out.println("send apruval");
+                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - "
+                            + user + " \nis approved by \nADMIN: - " + jwtFilter.getCurrentUser()
+                            + "\nVaghani Bhautik\n",
+                    allAdmin);
+            System.out.println("send apruval");
         } else {
             emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved",
-                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - " + user + " \nis disable by \nADMIN: - " + jwtFilter.getCurrentUser() + "\nVaghani Bhautik\n", allAdmin);
-                    System.out.println("send apruval");
+                    "hello all admin user \nwelcome to cafe management system \ni would like to give information about user \nUSER: - "
+                            + user + " \nis disable by \nADMIN: - " + jwtFilter.getCurrentUser()
+                            + "\nVaghani Bhautik\n",
+                    allAdmin);
+            System.out.println("send apruval");
         }
     }
 
+    // video-5
+    // checktoken
+    @Override
+    public ResponseEntity<String> checkToken() {
+        return CafeUtils.getResponseEntity(Cafe_Constants.TRUE, HttpStatus.OK);
+    }
+
+    // changePassword video-5
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
+        try {
+            // find the user by their email to change their password
+            User userObject = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if (!userObject.equals(null)) {
+                // entered correct old password --> can change to new password
+                if (userObject.getPassword().equals(requestMap.get("oldPassword"))) {
+                    userObject.setPassword(requestMap.get("newPassword"));
+                    userDao.save(userObject); // save the data to the db
+                    return CafeUtils.getResponseEntity(Cafe_Constants.PASSWORD_CHANGED, HttpStatus.OK);
+                }
+                return CafeUtils.getResponseEntity(Cafe_Constants.INCORRECT_OLD_PASSWORD, HttpStatus.BAD_REQUEST);
+            }
+            return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // forgot password video-5
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+        try {
+            User userObject = userDao.findByEmail(requestMap.get("email"));
+            if (!Objects.isNull(userObject) && !Strings.isNullOrEmpty(userObject.getEmail())) {
+                // send password change email to the user's email
+                emailUtil.forgotMail(userObject.getEmail(), "Reset your Lofi Cafe Password", userObject.getPassword());
+            }
+            return CafeUtils.getResponseEntity(Cafe_Constants.CHECK_EMAIL, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }

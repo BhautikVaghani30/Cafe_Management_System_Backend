@@ -1,6 +1,5 @@
 package com.cafe.com.cafe.dao;
 
-
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,18 +17,19 @@ public interface User_Dao extends JpaRepository<User, Integer> {
     User findByEmailId(@Param("email") String email);
     // video-2 end
 
-     // video-4 start
-     List<User_Wrapper> getAllUser();
-     // video-4 end
+    // video-4 start
+    List<User_Wrapper> getAllUser();
+    // video-4 end
 
-     // video-4 start
-     @Transactional
-     @Modifying
-     Integer updateStatus(@Param("status") String status, @Param("id") Integer id);
-     // video-4 end
+    // video-4 start
+    @Transactional
+    @Modifying
+    Integer updateStatus(@Param("status") String status, @Param("id") Integer id);
+    // video-4 end
 
+    List<String> getAllAdmin();
 
-     List<String> getAllAdmin();
-    
+    // video-5
+    User findByEmail(String email);
 
 }
