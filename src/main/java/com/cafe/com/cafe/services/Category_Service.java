@@ -14,7 +14,7 @@ import com.cafe.com.cafe.Entites.Category;
 import com.cafe.com.cafe.JWT.JwtFilter;
 import com.cafe.com.cafe.constants.Cafe_Constants;
 import com.cafe.com.cafe.dao.CategoryDao;
-import com.cafe.com.cafe.service_Interfaces.CategoryService;
+import com.cafe.com.cafe.service_Interfaces.Category_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
 import com.google.common.base.Strings;
 
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class Category_Service implements Category_Service_interface {
 
     @Autowired
     CategoryDao categoryDao;

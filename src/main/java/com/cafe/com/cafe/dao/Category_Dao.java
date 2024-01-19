@@ -7,6 +7,6 @@ import java.util.List;
 // this is category repository 
 // video-5
 
-public interface CategoryDao extends JpaRepository<Category, Integer> {
+public interface Category_Dao extends JpaRepository<Category, Integer> {
     List<Category> getAllCategory();
 }

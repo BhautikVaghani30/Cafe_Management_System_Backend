@@ -9,7 +9,7 @@ import com.cafe.com.cafe.Entites.Category;
 
 // this is category services interface class in video-5
 
-public interface CategoryService {
+public interface Category_Service_interface {
 
     // adds new category to the category api
     ResponseEntity<String> addNewCategory(Map<String, String> requestMap);

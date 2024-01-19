@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cafe.com.cafe.Entites.Category;
 import com.cafe.com.cafe.constants.Cafe_Constants;
-import com.cafe.com.cafe.rest_Interfaces.CategoryRest;
-import com.cafe.com.cafe.service_Interfaces.CategoryService;
+import com.cafe.com.cafe.rest_Interfaces.Category_interface;
+import com.cafe.com.cafe.service_Interfaces.Category_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
 
 @RestController
-public class CategoryRestImpl implements CategoryRest {
+public class Category_controllers implements Category_interface {
 
     // --------------------------------------------------------------------------------------------------------------
     @Autowired
-    CategoryService categoryService;
+    Category_Service_interface categoryService;
 
     // --------------------------------------------------------------------------------------------------------------
     // video-5

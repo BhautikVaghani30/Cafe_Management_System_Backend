@@ -15,13 +15,13 @@ import com.cafe.com.cafe.Entites.Category;
 // this is category interface
 // here also defaind api releted to category
 @RequestMapping(path = "/category")
-public interface CategoryRest {
+public interface Category_interface {
 
     // --------------------------------------------------------------------------------------------------------------
     // add new category
     @PostMapping(path = "/add")
     public ResponseEntity<String> addNewCategory(@RequestBody(required = true) Map<String, String> requestMap);
-    
+
     // --------------------------------------------------------------------------------------------------------------
     // get all category
     @GetMapping(path = "/get")
