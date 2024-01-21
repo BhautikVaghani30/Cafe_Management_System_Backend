@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.cafe.com.cafe.Entites.Category;
 import com.cafe.com.cafe.JWT.JwtFilter;
 import com.cafe.com.cafe.constants.Cafe_Constants;
-import com.cafe.com.cafe.dao.CategoryDao;
+import com.cafe.com.cafe.dao.Category_Dao;
 import com.cafe.com.cafe.service_Interfaces.Category_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
 import com.google.common.base.Strings;
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Category_Service implements Category_Service_interface {
 
     @Autowired
-    CategoryDao categoryDao;
+    Category_Dao categoryDao;
 
     @Autowired
     JwtFilter jwtFilter;
