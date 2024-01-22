@@ -12,13 +12,25 @@ public interface Product_Service_interface {
     // adds new product to a category api
     // video-6
     ResponseEntity<String> addNewProduct(Map<String, String> requestMap);
-    
+
     // get all product from database
     // video-6
     ResponseEntity<List<Product_Wrapper>> getAllProduct();
 
-    // update the product in db 
+    // update the product in db
     // video-6
-    ResponseEntity<String> updateProduct(Map<String,String> requstMap);
+    ResponseEntity<String> updateProduct(Map<String, String> requstMap);
+
+    // video-7
+    ResponseEntity<String> deleteProduct(Integer id);
+
+    // video-7
+    ResponseEntity<String> updateStatus(Map<String, String> requstMap);
+
+    // video-7
+    ResponseEntity<List<Product_Wrapper>> getByCategory(Integer id);
+
+    // video-7
+    ResponseEntity<Product_Wrapper> getById(Integer id);
 
 }
