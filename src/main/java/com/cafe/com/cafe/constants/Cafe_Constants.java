@@ -25,7 +25,7 @@ public class Cafe_Constants {
     public static final String PRODUCT_DELETED = "Product has been deleted.";
     public static final String PRODUCT_STATUS_UPDATED = "Product status has been updated successfully!";
     public static final String MISSING_REQUIRED_DATA = "Cannot generate file. Missing required data.";
-    public static final String STORE_LOCATION = "/Users/annie/projects/cafe-management/bills";
+    public static final String STORE_LOCATION = "C:\\Users\\bhautik vaghani\\Desktop\\backend (spring)\\CMS_BILL";
     public static final String INVALID_BILL = "Bill id does not exist.";
     public static final String BILL_DELETED = "Bill has been deleted.";
 }

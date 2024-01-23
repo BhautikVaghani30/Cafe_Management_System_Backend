@@ -1,15 +1,18 @@
 package com.cafe.com.cafe.Entites;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import java.io.Serializable;
 
-// @NamedQuery(name = "Bill.getAllBills", query = "select b from Bill b order by b.id desc")
-// @NamedQuery(name = "Bill.getBillByUserName", query = "select b from Bill b where b.createdBy=:username order by b.id desc")
+// get bills for admin in desending order video - 10
+@NamedQuery(name = "Bill.getAllBills", query = "select b from Bill b order by b.id desc")
+// get bill for perticular user video - 10
+@NamedQuery(name = "Bill.getBillByUserName", query = "select b from Bill b where b.createdBy=:username order by b.id desc")
 
+
+// this entites crearted in video-9
 @Data
 @Entity
 @DynamicInsert
