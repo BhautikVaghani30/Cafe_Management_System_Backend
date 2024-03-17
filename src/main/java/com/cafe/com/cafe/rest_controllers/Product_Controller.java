@@ -23,7 +23,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to addNewProduct in db
-  // video-6
   @Override
   public ResponseEntity<String> addNewProduct(Map<String, String> requestMap) {
     try {
@@ -36,7 +35,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to get all product from db
-  // video-6
   @Override
   public ResponseEntity<List<Product_Wrapper>> getAllProduct() {
     try {
@@ -49,7 +47,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to update the product in db
-  // video-6
   @Override
   public ResponseEntity<String> updateProduct(Map<String, String> requstMap) {
     try {
@@ -62,7 +59,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to delete product
-  // video-7
   @Override
   public ResponseEntity<String> deleteProduct(Integer id) {
     try {
@@ -75,7 +71,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to update product status
-  // video-7
   @Override
   public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
     try {
@@ -88,7 +83,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method used to fetch category by id
-  // video-7
   @Override
   public ResponseEntity<List<Product_Wrapper>> getByCategory(Integer id) {
     try {
@@ -101,7 +95,6 @@ public class Product_Controller implements Product_interface {
 
   // -------------------------------------------------------------------------------------------------------------------
   // this method is used to get product by id
-  // video-7
   @Override
   public ResponseEntity<Product_Wrapper> getById(Integer id) {
     try {

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class User_controller implements User_Interface {
 
-    // video-1 start
     @Autowired
     User_Service_Interface userService;
 
-    // video-2 start
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         try {
@@ -28,9 +26,7 @@ public class User_controller implements User_Interface {
         }
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    // video-2 end
 
-    // video-3 start
     @Override
     public ResponseEntity<String> login(Map<String, String> requestMap) {
         try {
@@ -40,9 +36,7 @@ public class User_controller implements User_Interface {
         }
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    // video-3 end
 
-    // video-4 start
     @Override
     public ResponseEntity<List<User_Wrapper>> getAllUser() {
         try {
@@ -63,9 +57,6 @@ public class User_controller implements User_Interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // video-4 end
-
-    // video-5
     @Override
     public ResponseEntity<String> checkToken() {
         try {
@@ -76,7 +67,6 @@ public class User_controller implements User_Interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // video-5
     @Override
     public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
         try {
@@ -87,11 +77,20 @@ public class User_controller implements User_Interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // video-5
     @Override
     public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
         try {
             return userService.forgotPassword(requestMap); // sends a reset password email to the user
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateUserRole(Map<String, String> requestMap) {
+        try {
+            return userService.updateUserRole(requestMap); // sends a reset password email to the user
         } catch (Exception ex) {
             ex.printStackTrace();
         }

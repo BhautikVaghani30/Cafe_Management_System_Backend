@@ -3,6 +3,7 @@ package com.cafe.com.cafe.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
@@ -10,8 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,13 +27,19 @@ public class SecurityConfig {
     @Autowired
     JwtFilter jwtFilter;
 
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     // authenticates username and password, implements authentication logic
     // uses Service to find username and validates password using Encoder
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
         auth.setUserDetailsService(customerUserDetailsService);
-        auth.setPasswordEncoder(passwordEncoder());
+        auth.setPasswordEncoder(bCryptPasswordEncoder());
         return auth;
     }
 
@@ -42,23 +48,56 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
+    // @Bean
+    // public PasswordEncoder passwordEncoder() {
+    //     return NoOpPasswordEncoder.getInstance();
+    // }
 
+    //    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors()
+//                .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues().setAllowedMethods())
+//
+//                .and()
+//                .csrf().disable()
+//                // by pass all requests with the following paths
+//                .authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers("/user/login/**").permitAll()
+//                        .requestMatchers("/user/signup/**").permitAll()
+//                        .requestMatchers("/user/forgotPassword/**").permitAll()
+//                        .anyRequest().authenticated() // otherwise, require authentication
+//                )
+//                .exceptionHandling()
+//                .and()
+//                .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//
+//        http.authenticationProvider(authenticationProvider());
+//        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//        return http.build();
+//    }
+//}
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+                .cors().configurationSource(request -> {
+                    CorsConfiguration corsConfig = new CorsConfiguration();
+                    corsConfig.applyPermitDefaultValues();
+                    corsConfig.addAllowedMethod(HttpMethod.PUT);
+                    corsConfig.addAllowedMethod(HttpMethod.PATCH);
+                    corsConfig.addAllowedMethod(HttpMethod.DELETE);
+                    return corsConfig;
+                })
                 .and()
                 .csrf().disable()
-                // by pass all requests with the following paths
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/user/login/**").permitAll()
-                        .requestMatchers("/user/signup/**").permitAll()
-                        .requestMatchers("/user/forgotPassword/**").permitAll()
-                        .anyRequest().authenticated() // otherwise, require authentication
+                // bypass all requests with the following paths
+                .authorizeRequests((authorizeRequests) ->
+                        authorizeRequests
+                                .requestMatchers("/user/login/**").permitAll()
+                                .requestMatchers("/user/signup/**").permitAll()
+                                .requestMatchers("/user/forgotPassword/**").permitAll()
+                                .anyRequest().authenticated() // otherwise, require authentication
                 )
                 .exceptionHandling()
                 .and()
@@ -66,7 +105,6 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authenticationProvider(authenticationProvider());
-        // adds our jwtFilter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

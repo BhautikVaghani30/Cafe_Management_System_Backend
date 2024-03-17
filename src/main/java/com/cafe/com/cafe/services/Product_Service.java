@@ -14,7 +14,7 @@ import com.cafe.com.cafe.Entites.Category;
 import com.cafe.com.cafe.Entites.Product;
 import com.cafe.com.cafe.JWT.JwtFilter;
 import com.cafe.com.cafe.constants.Cafe_Constants;
-import com.cafe.com.cafe.dao.Product_Dao;
+import com.cafe.com.cafe.repositories.Product_Dao;
 import com.cafe.com.cafe.service_Interfaces.Product_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
 import com.cafe.com.cafe.wrapper.Product_Wrapper;
@@ -30,7 +30,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements logic of add new product
-    // video-6
     @Override
     public ResponseEntity<String> addNewProduct(Map<String, String> requestMap) {
         try {
@@ -52,8 +51,7 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // validId is used to distinguish between the 2 use cases -- addNewProduct and
-    // updateProduct
-    // video-6
+
     private boolean validateProductMap(Map<String, String> requestMap, boolean validateId) {
         if (requestMap.containsKey("name")) {
             if (requestMap.containsKey("id") && validateId) {
@@ -67,8 +65,7 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // validId is used to distinguish between the 2 use cases -- addNewProduct and
-    // updateProduct
-    // video-6
+
     private Product getProductFromMap(Map<String, String> requestMap, boolean isAdd) {
         Category category = new Category();
         category.setId(Integer.parseInt(requestMap.get("categoryId"))); // retrieve category id as foreign key
@@ -89,7 +86,7 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements fetch all products from db
-    // video-6
+
     @Override
     public ResponseEntity<List<Product_Wrapper>> getAllProduct() {
         try {
@@ -102,7 +99,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements logic of update the product
-    // video-6
     public ResponseEntity<String> updateProduct(Map<String, String> requstMap) {
         try {
             if (jwtFilter.isAdmin()) {
@@ -130,7 +126,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements delete product logic
-    // video-7
     @Override
     public ResponseEntity<String> deleteProduct(Integer id) {
         try {
@@ -152,7 +147,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements product status logic
-    // video-7
     @Override
     public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
         try {
@@ -175,7 +169,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements get product by category logic
-    // video-7
     @Override
     public ResponseEntity<List<Product_Wrapper>> getByCategory(Integer id) {
         try {
@@ -188,7 +181,6 @@ public class Product_Service implements Product_Service_interface {
 
     // -------------------------------------------------------------------------------------------
     // this method is implements get product by id logic
-    // video-7
     @Override
     public ResponseEntity<Product_Wrapper> getById(Integer id) {
         try {

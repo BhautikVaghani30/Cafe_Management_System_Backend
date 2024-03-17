@@ -5,6 +5,8 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 // get bills for admin in desending order video - 10
 @NamedQuery(name = "Bill.getAllBills", query = "select b from Bill b order by b.id desc")
@@ -16,7 +18,7 @@ import java.io.Serializable;
 @Data
 @Entity
 @DynamicInsert
-@DynamicUpdate
+@DynamicUpdate             
 @Table(name = "bill")
 public class Bill implements Serializable {
     public static final long serialVersionUID = 1L;
@@ -35,9 +37,6 @@ public class Bill implements Serializable {
     @Column(name = "contactnumber")
     private String contactNumber;
 
-    @Column(name = "email")
-    private String email;
-
     @Column(name = "paymentmethod")
     private String paymentMethod;
 
@@ -49,4 +48,15 @@ public class Bill implements Serializable {
 
     @Column(name = "createdby")
     private String createdBy;
+
+    @Column(name = "paymentstatus")
+    private String paymentstatus;
+
+    @Column(name = "tablenumber")
+    private String tableNumber;
+
+    @OneToMany(cascade = {CascadeType.ALL, CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @JoinColumn(name = "bill_id")
+    private List<Order> orders = new ArrayList<>();
+    
 }

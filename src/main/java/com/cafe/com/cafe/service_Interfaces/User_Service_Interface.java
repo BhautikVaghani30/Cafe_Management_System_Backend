@@ -6,25 +6,36 @@ import java.util.*;
 
 public interface User_Service_Interface {
 
-    // user sign up api created in video-2
+    // --------------------------------------------------------------------------------------------------------------
+    // user sign up api created in
     ResponseEntity<String> signUp(Map<String, String> requestMap);
 
-    // user login api created in video-3
+    // --------------------------------------------------------------------------------------------------------------
+    // user login api created in
     ResponseEntity<String> login(Map<String, String> requestMap);
 
-    // user login api created in video-4
+    // --------------------------------------------------------------------------------------------------------------
+    // user login api created in
     ResponseEntity<List<User_Wrapper>> getAllUser();
 
-    // user login api created in video-4
+    // --------------------------------------------------------------------------------------------------------------
+    // user login api created in
     ResponseEntity<String> update(Map<String, String> requestMap);
 
-    // user tokencheck v-5
+    // --------------------------------------------------------------------------------------------------------------
+    // user tokencheck
     ResponseEntity<String> checkToken();
 
-    // change password api v-5
+    // --------------------------------------------------------------------------------------------------------------
+    // change password api
     ResponseEntity<String> changePassword(Map<String, String> requestMap);
 
-    // forgot password api v-5
+    // --------------------------------------------------------------------------------------------------------------
+    // forgot password api
     ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
+
+    // --------------------------------------------------------------------------------------------------------------
+    // update user role
+    ResponseEntity<String> updateUserRole(Map<String, String> requestMap);
 
 }

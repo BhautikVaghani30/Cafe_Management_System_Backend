@@ -23,7 +23,6 @@ public class Category_controllers implements Category_interface {
     Category_Service_interface categoryService;
 
     // --------------------------------------------------------------------------------------------------------------
-    // video-5
     // add new category
     @Override
     public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
@@ -35,7 +34,6 @@ public class Category_controllers implements Category_interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // --------------------------------------------------------------------------------------------------------------
-    // video-5
     // get all category
     @Override
     public ResponseEntity<List<Category>> getAllCategory(String filterValue) {
@@ -48,7 +46,6 @@ public class Category_controllers implements Category_interface {
     }
 
     // --------------------------------------------------------------------------------------------------------------
-    // video-5
     // update category
     @Override
     public ResponseEntity<String> updateCategory(Map<String, String> requestMap) {
@@ -58,5 +55,14 @@ public class Category_controllers implements Category_interface {
         e.printStackTrace();
        }
        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @Override
+    public ResponseEntity<String> deleteCategory(Integer id) {
+        try {
+            return categoryService.deleteCategory(id);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

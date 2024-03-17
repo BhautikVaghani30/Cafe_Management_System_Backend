@@ -4,6 +4,7 @@ import java.util.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -12,41 +13,37 @@ import com.cafe.com.cafe.wrapper.User_Wrapper;
 @RequestMapping(path = "/user")
 public interface User_Interface {
 
-    // video-2 start
+    
     // user signup api
     @PostMapping(path = "/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = true) Map<String, String> requestMap);
-    // video-2 end
 
-    // video-3
     // user login api
     @PostMapping(path = "/login")
     public ResponseEntity<String> login(@RequestBody(required = true) Map<String, String> requestMap);
-    // video-3
 
-    // video-4
     // get all user from db api
     @GetMapping(path = "/get")
     public ResponseEntity<List<User_Wrapper>> getAllUser();
 
-    // video-4
     // update user from admoin said api
     @PostMapping(path = "/update")
     public ResponseEntity<String> update(@RequestBody(required = true) Map<String, String> requestMap);
 
-    // video-5
     // check user token api
     @GetMapping(path = "/checkToken")
     public ResponseEntity<String> checkToken();
 
-    // video-5
     // change password api
     @PostMapping(path = "/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody(required = true) Map<String, String> requestMap);
 
-    // video-5
     // forgot password api
     @PostMapping(path = "/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestBody(required = true) Map<String, String> requestMap);
+
+    // forgot password api
+    @PutMapping(path = "/updateRole")
+    public ResponseEntity<String> updateUserRole(@RequestBody(required = true) Map<String, String> requestMap);
 
 }

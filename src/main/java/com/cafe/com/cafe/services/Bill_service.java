@@ -2,43 +2,35 @@ package com.cafe.com.cafe.services;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.pdfbox.io.IOUtils;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.cafe.com.cafe.DTO.TransactionDetails;
 import com.cafe.com.cafe.Entites.Bill;
+import com.cafe.com.cafe.Entites.Order;
 import com.cafe.com.cafe.JWT.JwtFilter;
+import com.cafe.com.cafe.PDF.GeneratePdf;
 import com.cafe.com.cafe.constants.Cafe_Constants;
-import com.cafe.com.cafe.dao.Bill_Dao;
+import com.cafe.com.cafe.repositories.Bill_Dao;
+import com.cafe.com.cafe.repositories.Order_Dao;
 import com.cafe.com.cafe.service_Interfaces.Bill_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.razorpay.RazorpayClient;
 
 import lombok.extern.slf4j.Slf4j;
 
-// this class crearted in video-9
 @Slf4j
 @Service
 public class Bill_Service implements Bill_Service_interface {
@@ -49,13 +41,18 @@ public class Bill_Service implements Bill_Service_interface {
     @Autowired
     Bill_Dao billDao;
 
+    @Autowired
+    Order_Dao order_Dao;
+
     // --------------------------------------------------------------------------------------------------------------
-    // this method is creatde in video - 9
     @Override
     public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
         log.info("Inside generateReport");
         try {
+
             String fileName; // uuid
+
+            Bill insertBills = null;
             if (validateRequestMap(requestMap)) {
                 // retrieves a certain bill stored in the database
                 if (requestMap.containsKey("isGenerate") && !(Boolean) requestMap.get("isGenerate")) {
@@ -65,48 +62,11 @@ public class Bill_Service implements Bill_Service_interface {
                 else {
                     fileName = CafeUtils.getUUID();
                     requestMap.put("uuid", fileName);
-                    insertBill(requestMap);
+                    insertBills = insertBill(requestMap);
                 }
 
-                String data = "Name: " + requestMap.get("name") + "\n" + "Contact Number:"
-                        + requestMap.get("contactNumber")
-                        + "\n" + "Email:" + requestMap.get("email") + "\n" + "Payment Method:"
-                        + requestMap.get("paymentMethod");
+                GeneratePdf.generatePDF(insertBills, fileName);
 
-                // create pdf document using itextpdf
-                Document document = new Document();
-                PdfWriter.getInstance(document,
-                        new FileOutputStream(Cafe_Constants.STORE_LOCATION + "/" + fileName + ".pdf")); // path to the
-                                                                                                        // folder
-                                                                                                        // storing the
-                                                                                                        // bills
-
-                document.open(); // open pdf document for writing
-                setRectangleInPdf(document);
-
-                Paragraph chunk = new Paragraph("Ajays Cafe", getFont("Header"));
-                chunk.setAlignment(Element.ALIGN_CENTER);
-                document.add(chunk);
-
-                Paragraph paragraph = new Paragraph(data + "\n \n", getFont("Data"));
-                document.add(paragraph);
-
-                PdfPTable table = new PdfPTable(5); // table for the purchased items
-                table.setWidthPercentage(100);
-                addTableHeader(table);
-
-                JSONArray jsonArray = CafeUtils.getJsonArrayFromString((String) requestMap.get("productDetails"));
-                // for every value in the json array, add it to the table
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    addRows(table, CafeUtils.getMapFromJson(jsonArray.getString(i)));
-                }
-                document.add(table);
-
-                Paragraph footer = new Paragraph("\nTotal : " + requestMap.get("totalAmount") + "\n"
-                        + "Thank you for visiting Ajays Cafe!", getFont("Data"));
-                document.add(footer);
-
-                document.close();
                 return new ResponseEntity<>("{\"uuid\":\"" + fileName + "\"}", HttpStatus.OK);
             }
             return CafeUtils.getResponseEntity(Cafe_Constants.MISSING_REQUIRED_DATA, HttpStatus.BAD_REQUEST);
@@ -117,92 +77,67 @@ public class Bill_Service implements Bill_Service_interface {
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // fills the table from data in the json array
-    private void addRows(PdfPTable table, Map<String, Object> data) {
-        log.info("Inside addRows");
-        table.addCell((String) data.get("name"));
-        table.addCell((String) data.get("category"));
-        table.addCell((String) data.get("quantity"));
-        table.addCell(Double.toString((Double) data.get("price")));
-        table.addCell(Double.toString((Double) data.get("total")));
-    }
-
-    // generates each column's header
-    private void addTableHeader(PdfPTable table) {
-        log.info("Inside addTableHeader");
-        Stream.of("Name", "Category", "Quantity", "Price", "Subtotal")
-                .forEach(columnTitle -> {
-                    PdfPCell header = new PdfPCell();
-                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                    header.setBorderWidth(1);
-                    header.setPhrase(new Phrase(columnTitle));
-                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                    header.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    header.setVerticalAlignment(Element.ALIGN_CENTER);
-                    table.addCell(header);
-                });
-    }
-
-    // this is method is used to get Font
-    private Font getFont(String type) {
-        log.info("Inside getFont");
-        switch (type) {
-            case "Header":
-                Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 18, BaseColor.BLACK);
-                headerFont.setStyle(Font.BOLD);
-                return headerFont;
-            case "Data":
-                Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 11, BaseColor.BLACK);
-                dataFont.setStyle(Font.BOLD);
-                return dataFont;
-            default:
-                return new Font();
-        }
-    }
-
-    // creates the margin around the pdf document
-    private void setRectangleInPdf(Document document) throws DocumentException {
-        log.info("Inside setRectangleInPdf");
-        Rectangle rectangle = new Rectangle(577, 825, 18, 15);
-        rectangle.enableBorderSide(1);
-        rectangle.enableBorderSide(2);
-        rectangle.enableBorderSide(4);
-        rectangle.enableBorderSide(8);
-        rectangle.setBorderColor(BaseColor.BLACK);
-        rectangle.setBorderWidth(1);
-        document.add(rectangle);
-    }
-
-    // creates a new bill
-    private void insertBill(Map<String, Object> requestMap) {
+    private Bill insertBill(Map<String, Object> requestMap) {
         try {
+
             Bill bill = new Bill();
             bill.setUuid((String) requestMap.get("uuid"));
             bill.setName((String) requestMap.get("name"));
-            bill.setEmail((String) requestMap.get("email"));
             bill.setContactNumber((String) requestMap.get("contactNumber"));
             bill.setPaymentMethod((String) requestMap.get("paymentMethod"));
             bill.setTotal(Integer.parseInt((String) requestMap.get("totalAmount")));
             bill.setProductDetail((String) requestMap.get("productDetails"));
             bill.setCreatedBy(jwtFilter.getCurrentUser());
-            billDao.save(bill); // save to db
+            bill.setPaymentstatus((String) requestMap.get("paymentStatus"));
+            bill.setTableNumber((String) requestMap.get("tableNumber"));
+
+            List<Order> list = new ArrayList<>();
+            String order = bill.getProductDetail();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(order);
+
+            if (jsonNode.isArray()) {
+                for (JsonNode item : jsonNode) {
+
+                    String name = item.get("name").asText();
+                    String category = item.get("category").asText();
+                    int quantity = item.get("quantity").asInt();
+                    int price = item.get("price").asInt();
+
+                    Order orders = new Order();
+                    orders.setProductName(name);
+                    orders.setCategory(category);
+                    orders.setQuantity(String.valueOf(quantity));   
+                    orders.setPrice(String.valueOf(price));
+                    int totalprice = quantity * (int) price;
+                    orders.setTotal(Integer.parseInt(String.valueOf(totalprice)));
+                    orders.setTablenumber((String) requestMap.get("tableNumber"));
+                    orders.setBill_uuid(bill.getUuid());
+                    orders.setPaymentMethod((String) requestMap.get("paymentMethod"));
+                    
+                    list.add(orders);
+                }
+            }
+
+            bill.setOrders(list);
+
+            Bill save = billDao.save(bill);
+            return save;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Error while inserting Bill and Orders", ex);
         }
+        return new Bill();
     }
 
-    // validates the JSON input, must contain all columns in the bill database
     private boolean validateRequestMap(Map<String, Object> requestMap) {
-        return requestMap.containsKey("name") &&
-                requestMap.containsKey("contactNumber") &&
-                requestMap.containsKey("email") &&
-                requestMap.containsKey("paymentMethod") &&
-                requestMap.containsKey("productDetails") &&
-                requestMap.containsKey("totalAmount");
+        return requestMap.containsKey("name") && requestMap.containsKey("contactNumber")
+                && requestMap.containsKey("paymentMethod")
+                && requestMap.containsKey("productDetails") && requestMap.containsKey("totalAmount");
     }
 
     // --------------------------------------------------------------------------------------------------------------
-    // get bills from database and send to user or admin video - 10
+    // get bills from database and send to user or admin
     @Override
     public ResponseEntity<List<Bill>> getBills() {
         try {
@@ -220,7 +155,7 @@ public class Bill_Service implements Bill_Service_interface {
     }
 
     // --------------------------------------------------------------------------------------------------------------
-    // this is method is used to download the pdf video - 10
+    // this is method is used to download the pdf
     @Override
     public ResponseEntity<byte[]> getpdf(Map<String, Object> requestMap) {
         log.info("Inside getPdf : requestMap {}", requestMap);
@@ -268,9 +203,11 @@ public class Bill_Service implements Bill_Service_interface {
         try {
             // only admins can delete bills
             if (jwtFilter.isAdmin()) {
+                @SuppressWarnings("rawtypes")
                 Optional optional = billDao.findById(id);
                 if (!optional.isEmpty()) {
-                    billDao.deleteById(id); // delete bill with the specified id
+                    billDao.deleteById(id);
+                    // delete bill with the specified id
                     return CafeUtils.getResponseEntity(Cafe_Constants.BILL_DELETED, HttpStatus.OK);
                 }
                 return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_BILL, HttpStatus.OK);
@@ -282,4 +219,127 @@ public class Bill_Service implements Bill_Service_interface {
         }
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    private static final String KEY = "rzp_test_DqGMseHxxRaQMg";
+    private static final String KEY_SECRET = "ALlStD4UylPMlFPsyVSuhVrm";
+    private static final String CURRENCY = "INR";
+
+    @Override
+    public TransactionDetails createTransaction(Double amount) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+
+            jsonObject.put("amount", (amount * 100));
+            jsonObject.put("currency", CURRENCY);
+
+            RazorpayClient razorpayClient = new RazorpayClient(KEY, KEY_SECRET);
+
+            com.razorpay.Order order = razorpayClient.orders.create(jsonObject);
+            TransactionDetails transactionDetails = prepareTransactionDetails(order);
+            System.out.println(order);
+            return transactionDetails;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private TransactionDetails prepareTransactionDetails(com.razorpay.Order order) {
+
+        String orderId = order.get("id");
+        String currency = order.get("currency");
+        Integer amount = order.get("amount");
+        TransactionDetails transactionDetails = new TransactionDetails(orderId, currency, amount);
+        return transactionDetails;
+    }
+
+    @Override
+    public ResponseEntity<List<Order>> getAllorders(Map<String, String> requestMap) {
+        try {
+            // List<Order> all = order_Dao.findAll();
+            List<Order> all = order_Dao.findAll();
+            System.out.println(all);
+            if (all.size() > 0) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateOrderStatus(Map<String, String> request) {
+        try {
+            // Extract status and id from the request
+            String statusString = request.get("orderStatus");
+            String idString = request.get("id");
+
+            if (statusString != null && idString != null) {
+                // Parse status as boolean and id as integer
+                boolean newStatus = Boolean.parseBoolean(statusString);
+                Integer orderId = Integer.parseInt(idString);
+
+                // Assuming you have an OrderRepository to interact with the database
+                Order order = order_Dao.findById(orderId).orElse(null);
+
+                if (order != null) {
+                    // Update the order status
+                    order.setOrderStatus(newStatus);
+                    order_Dao.save(order);
+
+                    return CafeUtils.getResponseEntity("Order status updated successfully", HttpStatus.OK);
+                } else {
+                    return CafeUtils.getResponseEntity("Order not found", HttpStatus.NOT_FOUND);
+                }
+            } else {
+                return CafeUtils.getResponseEntity("Invalid request format", HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> deleteOrder(Integer id) {
+        try {
+            @SuppressWarnings("rawtypes")
+            Optional optional = order_Dao.findById(id);
+            if (!optional.isEmpty()) {
+                order_Dao.deleteById(id);
+                // delete bill with the specified id
+                return CafeUtils.getResponseEntity(Cafe_Constants.ORDER_DELETE, HttpStatus.OK);
+            }
+            return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_ORDER, HttpStatus.BAD_REQUEST);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Order>> getOrderByCategory(Map<String, String> requestMap) {
+        try {
+            System.out.println(requestMap);
+            String category = requestMap.get("category");
+            System.out.println(category);
+            if (category != null) {
+                List<Order> all = order_Dao.findByCategory(category);
+                System.out.println("list + : " + all);
+                if (!all.isEmpty()) {
+                    return new ResponseEntity<>(all, HttpStatus.OK);
+                }
+            }
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

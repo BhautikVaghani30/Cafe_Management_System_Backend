@@ -1,35 +1,33 @@
-package com.cafe.com.cafe.dao;
+package com.cafe.com.cafe.repositories;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.cafe.com.cafe.Entites.User;
 import com.cafe.com.cafe.wrapper.User_Wrapper;
 
 import jakarta.transaction.Transactional;
-
+@Repository
+@EnableJpaRepositories
 public interface User_Dao extends JpaRepository<User, Integer> {
 
-    // video-2 start
     User findByEmailId(@Param("email") String email);
-    // video-2 end
 
-    // video-4 start
     List<User_Wrapper> getAllUser();
-    // video-4 end
+    // @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name IN (:roleNames)")
+    // List<User_Wrapper> findByRolesNameIn(@Param("roleNames") List<String> roleNames);
 
-    // video-4 start
     @Transactional
     @Modifying
     Integer updateStatus(@Param("status") String status, @Param("id") Integer id);
-    // video-4 end
 
     List<String> getAllAdmin();
 
-    // video-5
     User findByEmail(String email);
 
 }

@@ -6,16 +6,16 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import java.io.Serializable;
 
-// select email from database video-1 
 @NamedQuery(name = "User.findByEmailId", query = "select u from User u where u.email=:email")
 
-// video-4/
-@NamedQuery(name = "User.getAllUser", query = "select new com.cafe.com.cafe.wrapper.User_Wrapper(u.id, u.name, u.email, u.contactNumber, u.status) from User u where u.role='user'")
+// @NamedQuery(name = "User.getAllUser", query = "select new com.cafe.com.cafe.wrapper.User_Wrapper(u.id, u.name, u.email, u.contactNumber, u.status) from User u where u.role='user' or u.role='cook")
+@NamedQuery(
+    name = "User.getAllUser",
+    query = "SELECT NEW com.cafe.com.cafe.wrapper.User_Wrapper(u.id, u.name, u.email, u.contactNumber, u.status, u.role) FROM User u WHERE u.role='user' OR u.role='cook'"
+)
+@NamedQuery(name = "User.updateStatus", query = "update User u set u.status=:status where u.id=:id ")
 
-@NamedQuery(name = "User.updateStatus", query = "update User u set u.status=:status where u.id=:id")
-
-@NamedQuery(name = "User.getAllAdmin", query = "select u.email from User u where u.role='admin'")
-// this entites created in video-1
+@NamedQuery(name = "User.getAllAdmin", query = "select u.email from User u where u.role='admin' ")
 @Data
 @Entity
 @DynamicInsert
@@ -40,6 +40,9 @@ public class User implements Serializable {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "tempPassword")
+    private String tempPassword;
 
     @Column(name = "status")
     private String status;

@@ -13,7 +13,6 @@ public class Dashboard_controller implements Dashboard_interface {
     @Autowired
     Dashboard_Service_interface dashboardService;
 
-    // video-10
     // this method is used to get dashaboard details
     @Override
     public ResponseEntity<Map<String, Object>> getCount() {

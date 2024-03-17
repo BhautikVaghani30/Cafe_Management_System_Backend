@@ -16,13 +16,15 @@ public class User_Wrapper {
     private String contactNumber;
 
     private String status;
+    private String role;
 
-    public User_Wrapper(Integer id, String name, String email, String contactNumber, String status) {
+    public User_Wrapper(Integer id, String name, String email, String contactNumber, String status, String role) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.contactNumber = contactNumber;
         this.status = status;
+        this.role = role;
     }
 
 }

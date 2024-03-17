@@ -11,9 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cafe.com.cafe.Entites.Category;
+import com.cafe.com.cafe.Entites.Product;
 import com.cafe.com.cafe.JWT.JwtFilter;
 import com.cafe.com.cafe.constants.Cafe_Constants;
-import com.cafe.com.cafe.dao.Category_Dao;
+import com.cafe.com.cafe.repositories.Category_Dao;
+import com.cafe.com.cafe.repositories.Product_Dao;
 import com.cafe.com.cafe.service_Interfaces.Category_Service_interface;
 import com.cafe.com.cafe.utils.CafeUtils;
 import com.google.common.base.Strings;
@@ -21,7 +23,6 @@ import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 
 // this service class created in video-5 for business logic of category
-// video-5
 
 @Slf4j
 @Service
@@ -31,11 +32,13 @@ public class Category_Service implements Category_Service_interface {
     Category_Dao categoryDao;
 
     @Autowired
+    Product_Dao product_Dao;
+
+    @Autowired
     JwtFilter jwtFilter;
 
     // ---------------------------------------------------------------------------------------------------------------
     // this is for add new category
-    // video-5
     @Override
     public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
         try {
@@ -81,7 +84,6 @@ public class Category_Service implements Category_Service_interface {
     // ---------------------------------------------------------------------------------------------------------------
     // validId is used to distinguish between the 2 use cases -- addNewCategory and
     // updateCategory
-    // video-5
     private Category getCategoryFromMap(Map<String, String> requestMap, boolean isAdd) {
         Category category = new Category();
 
@@ -95,7 +97,6 @@ public class Category_Service implements Category_Service_interface {
 
     // ---------------------------------------------------------------------------------------------------------------
     // get all category
-    // video-5
     @Override
     public ResponseEntity<List<Category>> getAllCategory(String filterValue) {
         try {
@@ -112,7 +113,6 @@ public class Category_Service implements Category_Service_interface {
 
     // ---------------------------------------------------------------------------------------------------------------
     // update category
-    // video-5
     @Override
     public ResponseEntity<String> updateCategory(Map<String, String> requestMap) {
         try {
@@ -135,6 +135,45 @@ public class Category_Service implements Category_Service_interface {
             e.printStackTrace();
         }
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<String> deleteCategory(Integer id) {
+        try {
+            // Check if category exists
+            Optional<Category> optionalCategory = categoryDao.findById(id);
+            if (optionalCategory.isPresent()) {
+                Category category = optionalCategory.get();
+
+                // Check if there are associated products
+                List<Product> products = product_Dao.findByCategory(category);
+                if (products.isEmpty()) {
+                    // No associated products, delete the category
+                    categoryDao.deleteById(id);
+                    return CafeUtils.getResponseEntity(Cafe_Constants.CATEGORY_DELETE, HttpStatus.OK);
+                } else {
+                    // Associated products exist, delete them first
+                    product_Dao.deleteAll(products);
+
+                    // Now delete the category
+                    categoryDao.deleteById(id);
+                    return CafeUtils.getResponseEntity(Cafe_Constants.CATEGORY_DELETE, HttpStatus.OK);
+                }
+            } else {
+                // Category not found
+                return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_CATEGORY, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void test() {
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
