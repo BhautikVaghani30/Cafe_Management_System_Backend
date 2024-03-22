@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 
 // this spring SecurityConfig implementin video-2
@@ -97,6 +98,8 @@ public class SecurityConfig {
                                 .requestMatchers("/user/login/**").permitAll()
                                 .requestMatchers("/user/signup/**").permitAll()
                                 .requestMatchers("/user/forgotPassword/**").permitAll()
+                                .requestMatchers("/user/sendOTP/**").permitAll()
+                                // .requestMatchers("/user/**").permitAll()
                                 .anyRequest().authenticated() // otherwise, require authentication
                 )
                 .exceptionHandling()
@@ -108,4 +111,6 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    
 }

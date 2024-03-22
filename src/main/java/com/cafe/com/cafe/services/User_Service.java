@@ -8,7 +8,6 @@ import com.cafe.com.cafe.constants.Cafe_Constants;
 import com.cafe.com.cafe.repositories.User_Dao;
 import com.cafe.com.cafe.service_Interfaces.User_Service_Interface;
 import com.cafe.com.cafe.utils.CafeUtils;
-
 import com.cafe.com.cafe.utils.EmailUtils;
 import com.cafe.com.cafe.wrapper.User_Wrapper;
 import com.google.common.base.Strings;
@@ -54,9 +53,11 @@ public class User_Service implements User_Service_Interface {
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         log.info("Inside signup: {}", requestMap);
         try {
+           
             if (validateSignUpMap(requestMap)) {
                 User user = userDao.findByEmailId(requestMap.get("email"));
                 if (Objects.isNull(user)) {
+                  
                     userDao.save(getUserFromMap(requestMap));
                     return CafeUtils.getResponseEntity(Cafe_Constants.SUCCESSFULLY_REGISTERED, HttpStatus.OK);
                 } else {
@@ -79,16 +80,45 @@ public class User_Service implements User_Service_Interface {
         return false;
     }
 
-    private User getUserFromMap(Map<String, String> requestMap) {
+    private User getUserFromMap(Map<String, String> requestMap) throws MessagingException {
         User user = new User();
+        List<User> all = userDao.findAll();
+        if(all.size() == 0){
+            user.setRole("admin");
+            user.setStatus("true");
+        }else{
+            user.setRole("user");
+            user.setStatus("false");
+        }
         user.setName(requestMap.get("name"));
         user.setContactNumber(requestMap.get("contactNumber"));
         user.setEmail(requestMap.get("email"));
         user.setPassword(bCryptPasswordEncoder.encode(requestMap.get("password")));
-        user.setStatus("false");
-        user.setRole("user");
         user.setTempPassword(requestMap.get("password"));
+        user.setOtp(requestMap.get("otp"));
         return user;
+    }
+
+    @Override
+    public ResponseEntity<String> preSignup(Map<String, String> requestMap) {
+        try {
+            if (validate(requestMap)) {
+                int otp = CafeUtils.generateOTP();
+                emailUtil.emailOTP(requestMap.get("email"),"One Time Password" ,otp);
+                return CafeUtils.getResponseEntity(String.valueOf(otp), HttpStatus.OK);
+            } else {
+                return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+      
+        return CafeUtils.getResponseEntity(Cafe_Constants.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST);
+    }
+
+
+    private boolean validate(Map<String, String> requestMap) {
+     return requestMap.containsKey("email");
     }
 
     @Override
@@ -134,6 +164,8 @@ public class User_Service implements User_Service_Interface {
     @Override
     public ResponseEntity<String> update(Map<String, String> requestMap) {
         try {
+            
+            
             if (jwtFilter.isAdmin()) {
                 Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
                 if (!optional.isEmpty()) {
@@ -259,9 +291,27 @@ public class User_Service implements User_Service_Interface {
         }
         return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+    
     private boolean validateUser(Map<String, String> requestMap) {
         return requestMap.containsKey("id") && requestMap.containsKey("role");
     }
+    
+    @Override
+    public ResponseEntity<String> deleteUser(Map<String, Integer> requestMap) {
+        try {
+            User user = userDao.findById(requestMap.get("id")).get();
+            if(user != null){
+                userDao.delete(user);
+                return CafeUtils.getResponseEntity(Cafe_Constants.USER_DELETED_SUCCESSFULLY, HttpStatus.OK);
 
+            }else{
+                return CafeUtils.getResponseEntity(Cafe_Constants.USER_NOT_FOUND, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(Cafe_Constants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    
 }

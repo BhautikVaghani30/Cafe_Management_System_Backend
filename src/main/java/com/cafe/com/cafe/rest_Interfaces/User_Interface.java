@@ -2,6 +2,7 @@ package com.cafe.com.cafe.rest_Interfaces;
 
 import java.util.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -45,5 +46,13 @@ public interface User_Interface {
     // forgot password api
     @PutMapping(path = "/updateRole")
     public ResponseEntity<String> updateUserRole(@RequestBody(required = true) Map<String, String> requestMap);
+
+    // forgot password api
+    @PostMapping(path = "/sendOTP")
+    public ResponseEntity<String> preSignup(@RequestBody(required = true) Map<String, String> requestMap);
+
+    // forgot password api
+    @DeleteMapping(path = "/delete")
+    public ResponseEntity<String> deleteUser(@RequestBody(required = true) Map<String, Integer> requestMap);
 
 }

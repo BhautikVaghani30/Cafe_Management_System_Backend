@@ -4,6 +4,7 @@ public class Cafe_Constants {
     // messages for each api call
     public static final String SOMETHING_WENT_WRONG = "Something went wrong!";
     public static final String INVALID_DATA = "Invalid data.";
+    public static final String SEND_OTP = "Send otp in your email";
     public static final String SUCCESSFULLY_REGISTERED = "Your account has been successfully registered!";
     public static final String DUPLICATE_ACCOUNT = "An account with this email already exists.";
     public static final String INVALID_CREDENTIALS = "Invalid credentials!";
@@ -11,6 +12,7 @@ public class Cafe_Constants {
     public static final String INVALID_USER = "This user does not exist.";
     public static final String USER_NOT_FOUND = "User Does Not Exist";
     public static final String USER_ROLE_UPDATE = "User role updated...";
+    public static final String USER_DELETED_SUCCESSFULLY = "User deleted...";
     public static final String UPDATE_SUCCESSFUL = "User status has been updated successfully!";
     public static final String TRUE = "True";
     public static final String INCORRECT_OLD_PASSWORD = "The password you entered is incorrect.";
@@ -33,4 +35,5 @@ public class Cafe_Constants {
     public static final String INVALID_ORDER = "Order id does not exist.";
     public static final String BILL_DELETED = "Bill has been deleted."; 
     public static final String ORDER_DELETE = "Order has been deleted."; 
+    public static final String INVALID_OTP = "Invalid Otp"; 
 }

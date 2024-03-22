@@ -38,4 +38,12 @@ public interface User_Service_Interface {
     // update user role
     ResponseEntity<String> updateUserRole(Map<String, String> requestMap);
 
+    // --------------------------------------------------------------------------------------------------------------
+    // update user role
+    ResponseEntity<String> preSignup(Map<String, String> requestMap);
+
+    // --------------------------------------------------------------------------------------------------------------
+    // update user role
+    ResponseEntity<String> deleteUser(Map<String, Integer> requestMap);
+
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,4 +64,11 @@ public class CafeUtils {
         return false;
     }
 
+   
+    public static int generateOTP() {
+        // Generate a random 6-digit OTP
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+        return otp;
+    }
 }

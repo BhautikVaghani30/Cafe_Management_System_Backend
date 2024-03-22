@@ -187,6 +187,86 @@ public class Bill_Service implements Bill_Service_interface {
         return null;
     }
 
+//     @Override
+// public ResponseEntity<byte[]> getpdf(Map<String, Object> requestMap) {
+//     log.info("Inside getPdf : requestMap {}", requestMap);
+//     try {
+//         byte[] byteArray = new byte[0]; // array of binary data which will be converted into ASCII data in the UI
+
+//         // Check if UUID exists in the request
+//         if (!requestMap.containsKey("uuid") || !validateRequestMap(requestMap)) {
+//             return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
+//         }
+
+//         // Get the file path from the specified UUID
+//         String fileName = (String) requestMap.get("uuid");
+//         String filePath = Cafe_Constants.STORE_LOCATION + "/" + fileName + ".pdf";
+
+//         // Generate a new bill for the specified UUID
+//         GeneratePdf.generatePDF(MakeBill(requestMap), fileName);
+//         byteArray = getByteArray(filePath);
+
+//         return new ResponseEntity<>(byteArray, HttpStatus.OK);
+
+//     } catch (Exception e) {
+//         e.printStackTrace();
+//     }
+//     return new ResponseEntity<>(new byte[0], HttpStatus.INTERNAL_SERVER_ERROR);
+// }
+
+//     private Bill MakeBill(Map<String, Object> requestMap) {
+//         try {
+
+//             Bill bill = new Bill();
+//             bill.setUuid((String) requestMap.get("uuid"));
+//             bill.setName((String) requestMap.get("name"));
+//             bill.setContactNumber((String) requestMap.get("contactNumber"));
+//             bill.setPaymentMethod((String) requestMap.get("paymentMethod"));
+//             bill.setTotal(Integer.parseInt((String) requestMap.get("totalAmount")));
+//             bill.setProductDetail((String) requestMap.get("productDetails"));
+//             bill.setCreatedBy(jwtFilter.getCurrentUser());
+//             bill.setPaymentstatus((String) requestMap.get("paymentStatus"));
+//             bill.setTableNumber((String) requestMap.get("tableNumber"));
+
+//             List<Order> list = new ArrayList<>();
+//             String order = bill.getProductDetail();
+
+//             ObjectMapper objectMapper = new ObjectMapper();
+//             JsonNode jsonNode = objectMapper.readTree(order);
+
+//             if (jsonNode.isArray()) {
+//                 for (JsonNode item : jsonNode) {
+
+//                     String name = item.get("name").asText();
+//                     String category = item.get("category").asText();
+//                     int quantity = item.get("quantity").asInt();
+//                     int price = item.get("price").asInt();
+
+//                     Order orders = new Order();
+//                     orders.setProductName(name);
+//                     orders.setCategory(category);
+//                     orders.setQuantity(String.valueOf(quantity));   
+//                     orders.setPrice(String.valueOf(price));
+//                     int totalprice = quantity * (int) price;
+//                     orders.setTotal(Integer.parseInt(String.valueOf(totalprice)));
+//                     orders.setTablenumber((String) requestMap.get("tableNumber"));
+//                     orders.setBill_uuid(bill.getUuid());
+//                     orders.setPaymentMethod((String) requestMap.get("paymentMethod"));
+                    
+//                     list.add(orders);
+//                 }
+//             }
+
+//             bill.setOrders(list);
+
+           
+//             return bill;
+//         } catch (Exception ex) {
+//             log.error("Error while inserting Bill and Orders", ex);
+//         }
+//         return new Bill();
+//     }
+
     // converts text in the pdf into a byte array
     private byte[] getByteArray(String filePath) throws Exception {
         File initialFile = new File(filePath);
